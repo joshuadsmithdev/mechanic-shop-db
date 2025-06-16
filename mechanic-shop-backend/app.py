@@ -1,12 +1,17 @@
-import os
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from config import Config
 
 app = Flask(__name__)
+app.config.from_object(Config)
+
+db      = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 @app.route("/")
 def home():
     return "🔧 Mechanic Shop API is alive!"
 
 if __name__ == "__main__":
-    # Only needed if you run `python app.py`
     app.run(debug=True)
