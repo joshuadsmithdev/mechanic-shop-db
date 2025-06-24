@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, app
 from .config      import Config
 from .extensions  import db, migrate, ma
 
@@ -14,6 +14,8 @@ def create_app():
     # register blueprints
     from .blueprints.mechanics     import mechanics_bp
     from .blueprints.service_tickets import tickets_bp
+    from app.blueprints.customers.routes import customers_bp
+    app.register_blueprint(customers_bp)
 
     app.register_blueprint(mechanics_bp,   url_prefix='/mechanics')
     app.register_blueprint(tickets_bp,     url_prefix='/service-tickets')
