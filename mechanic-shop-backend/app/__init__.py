@@ -15,6 +15,9 @@ def create_app():
     from .blueprints.mechanics     import mechanics_bp
     from .blueprints.service_tickets import tickets_bp
     from app.blueprints.customers.routes import customers_bp
+    from app.blueprints.vehicles.routes import vehicles_bp
+    app.register_blueprint(vehicles_bp)
+
     app.register_blueprint(customers_bp)
 
     app.register_blueprint(mechanics_bp,   url_prefix='/mechanics')
