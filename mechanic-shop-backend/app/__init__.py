@@ -16,11 +16,11 @@ def create_app():
     from .blueprints.service_tickets import tickets_bp
     from app.blueprints.customers.routes import customers_bp
     from app.blueprints.vehicles.routes import vehicles_bp
-    app.register_blueprint(vehicles_bp)
+    app.register_blueprint(vehicles_bp,    url_prefix='/vehicles')
 
     app.register_blueprint(customers_bp)
 
     app.register_blueprint(mechanics_bp,   url_prefix='/mechanics')
-    app.register_blueprint(tickets_bp,     url_prefix='/service-tickets')
+    app.register_blueprint(tickets_bp,     url_prefix='/tickets')
 
     return app

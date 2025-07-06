@@ -33,3 +33,7 @@ def delete_mechanic(id):
     db.session.delete(m)
     db.session.commit()
     return '', 204
+@mechanics_bp.route('/<int:id>', methods=['GET'])
+def get_mechanic(id):
+    m = Mechanic.query.get_or_404(id)
+    return mechanic_schema.jsonify(m)
