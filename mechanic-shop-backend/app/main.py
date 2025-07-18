@@ -1,13 +1,15 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from config import Config
+from app.extensions import db, migrate, limiter, cache
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
-db      = SQLAlchemy(app)
-migrate = Migrate(app, db)
+# Initialize extensions
+db.init_app(app)
+migrate.init_app(app, db)
+limiter.init_app(app)
+cache.init_app(app)
 
 @app.route("/")
 def home():

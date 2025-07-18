@@ -1,4 +1,5 @@
 from .extensions import db
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class Customer(db.Model):
     __tablename__ = 'customer'
@@ -8,11 +9,18 @@ class Customer(db.Model):
     phone       = db.Column(db.String(20))
     email       = db.Column(db.String(100))
     address     = db.Column(db.String(200))
+    password_hash = db.Column(db.String(128), nullable=False)
 
     # 1→M: customer → vehicles
     vehicles = db.relationship(
         'Vehicle', back_populates='owner', cascade='all, delete-orphan'
     )
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 class Vehicle(db.Model):
     __tablename__ = 'vehicle'

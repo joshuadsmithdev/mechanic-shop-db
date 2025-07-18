@@ -2,11 +2,25 @@ from flask import Blueprint, request, jsonify, abort
 from ...extensions import db
 from ...models     import ServiceTicket, Mechanic, ServiceAssignment
 from .schemas      import ServiceTicketSchema
-
+from app.utils.token import encode_token, token_required
 tickets_bp       = Blueprint('service_tickets', __name__)
 ticket_schema    = ServiceTicketSchema()
 tickets_schema   = ServiceTicketSchema(many=True)
 
+@tickets_bp.route('/my-tickets', methods=['GET'])
+@token_required
+def get_my_tickets(current_user):
+    """
+    Get all service tickets assigned to the current mechanic.
+    """
+    if not current_user.is_mechanic:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    # Fetch tickets assigned to this mechanic
+    assignments = ServiceAssignment.query.filter_by(mechanic_id=current_user.mechanic_id).all()
+    tickets = [assignment.service_ticket for assignment in assignments]
+
+    return tickets_schema.jsonify(tickets), 200
 @tickets_bp.route('/', methods=['POST'])
 def create_ticket():
     t = ticket_schema.load(request.get_json(), session=db.session)
