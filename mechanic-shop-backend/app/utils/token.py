@@ -27,9 +27,15 @@ def token_required(f):
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        token = request.headers.get("Authorization")
-        if not token:
-            return jsonify({"error": "Token is missing"}), 401
+        auth_header = request.headers.get("Authorization")
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return jsonify({"error": "Authorization header missing or invalid"}), 401
+
+        parts = auth_header.split()
+        if len(parts) != 2:
+            return jsonify({"error": "Invalid authorization header format"}), 401
+
+        token = parts[1]
 
         customer_id = decode_token(token)
         if not customer_id:

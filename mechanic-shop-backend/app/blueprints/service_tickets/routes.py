@@ -9,13 +9,13 @@ tickets_schema   = ServiceTicketSchema(many=True)
 
 @tickets_bp.route('/my-tickets', methods=['GET'])
 @token_required
-def get_my_tickets(current_user):
+def get_my_tickets(customer_id):
+    tickets = ServiceTicket.query.filter_by(customer_id=customer_id).all()
+    return tickets_schema.jsonify(tickets), 200
     """
     Get all service tickets assigned to the current mechanic.
     """
-    if not current_user.is_mechanic:
-        return jsonify({"error": "Unauthorized"}), 403
-
+    
     # Fetch tickets assigned to this mechanic
     assignments = ServiceAssignment.query.filter_by(mechanic_id=current_user.mechanic_id).all()
     tickets = [assignment.service_ticket for assignment in assignments]
