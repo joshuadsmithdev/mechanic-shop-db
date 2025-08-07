@@ -12,7 +12,7 @@ def create_app():
     ma.init_app(app)
 
     # register blueprints
-    from .blueprints.mechanics     import mechanics_bp
+    from .blueprints.mechanics.routes     import mechanics_bp
     from .blueprints.service_tickets import tickets_bp
     from .blueprints.customers.routes import customers_bp
     from .blueprints.vehicles.routes import vehicles_bp

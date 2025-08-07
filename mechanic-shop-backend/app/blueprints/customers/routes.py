@@ -42,8 +42,22 @@ def create_customer():
 @customers_bp.route("/customers", methods=["GET"])
 @limiter.limit("100 per hour")  # Rate limit for read operations
 def get_customers():
-    customers = Customer.query.all()
-    return customer_list_schema.jsonify(customers), 200
+   # Get query parameters ?page=1&per_page=10
+    page = request.args.get("page", 1, type=int)
+    per_page = min(request.args.get("per_page", 10, type=int), 50)  # Optional: max 50 per page
+
+# Paginate query
+    paginated = Customer.query.paginate(page=page, per_page=per_page, error_out=False)
+
+# Return structured pagination response
+    return jsonify({
+        "total": paginated.total,
+        "pages": paginated.pages,
+        "current_page": paginated.page,
+        "per_page": paginated.per_page,
+        "data": customer_list_schema.dump(paginated.items)
+    }), 200
+
 
 # Get a customer by ID
 @customers_bp.route("/customers/<int:customer_id>", methods=["GET"])

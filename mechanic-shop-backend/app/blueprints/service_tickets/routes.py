@@ -15,7 +15,7 @@ def get_my_tickets(customer_id):
     """
     Get all service tickets assigned to the current mechanic.
     """
-    
+
     # Fetch tickets assigned to this mechanic
     assignments = ServiceAssignment.query.filter_by(mechanic_id=current_user.mechanic_id).all()
     tickets = [assignment.service_ticket for assignment in assignments]
@@ -87,7 +87,22 @@ def remove_mechanic(ticket_id, mech_id):
 @tickets_bp.route('/<int:ticket_id>', methods=['PUT'])
 def update_ticket(ticket_id):
     t = ServiceTicket.query.get_or_404(ticket_id)
+    data = request.get_json()
+
+    add_ids = data.get('add_ids', [])
+    remove_ids = data.get('remove_ids', [])
     t = ticket_schema.load(request.get_json(), instance=t, session=db.session)
+
+
+    for mid in add_ids:
+        if not ServiceAssignment.query.get((ticket_id, mid)):
+            assignment = ServiceAssignment(service_ticket_id=ticket_id, mechanic_id=mid, hours_worked=0.0)
+            db.session.add(assignment)
+    for mid in remove_ids:
+        assignment = ServiceAssignment.query.get((ticket_id, mid))
+        if assignment:
+            db.session.delete(assignment)
+
     db.session.commit()
     return ticket_schema.jsonify(t)
 @tickets_bp.route('/<int:ticket_id>', methods=['GET'])

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, abort
 from ...extensions import db
-from ...models     import Mechanic
+from ...models     import Mechanic, ServiceAssignment
 from .schemas      import MechanicSchema
 
 mechanics_bp      = Blueprint('mechanics', __name__)
@@ -37,3 +37,18 @@ def delete_mechanic(id):
 def get_mechanic(id):
     m = Mechanic.query.get_or_404(id)
     return mechanic_schema.jsonify(m)
+
+@mechanics_bp.route('/top', methods=['GET'])
+def get_top_mechanics():
+    # Example logic: Top mechanics based on number of assignments
+    top_mechanics = db.session.query(
+        Mechanic,
+        db.func.count(ServiceAssignment.mechanic_id).label('assignment_count')
+    ).outerjoin(ServiceAssignment).group_by(Mechanic.id).order_by(db.desc('assignment_count')).limit(5).all()
+
+    result = [{
+        'mechanic': mechanic_schema.dump(m[0]),
+        'assignment_count': m[1]
+    } for m in top_mechanics]
+
+    return jsonify(result), 200
