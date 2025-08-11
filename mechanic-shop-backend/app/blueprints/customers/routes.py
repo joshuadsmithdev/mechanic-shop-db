@@ -23,20 +23,25 @@ def create_customer():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    try:
-        credentials = login_schema.load(data)
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-    customer = Customer.query.filter_by(email=credentials['email']).first()
-    if not customer or customer.check_password(credentials['password']):
-        return jsonify({"error": "Invalid credentials"}), 401
-
-    token = encode_token(customer.customer_id)
     db.session.add(customer)
     db.session.commit()
     return customer_schema.jsonify(customer), 201
+
+# Login route to get token
+@customers_bp.route("/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    try:
+        creds = login_schema.load(data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    customer = Customer.query.filter_by(email=creds['email']).first()
+    if customer and customer.check_password(creds['password']):
+        token = encode_token(customer.customer_id)
+        return jsonify({"token": token}), 200
+    else:
+        return jsonify({"error": "Invalid email or password"}), 401
 
 # Get all customers
 @customers_bp.route("/customers", methods=["GET"])
