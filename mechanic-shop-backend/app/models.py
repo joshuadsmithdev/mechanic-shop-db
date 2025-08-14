@@ -76,7 +76,11 @@ class ServiceTicket(db.Model):
     assignments = db.relationship(
         'ServiceAssignment', back_populates='ticket', cascade='all, delete-orphan'
     )
-
+    parts = db.relationship(
+        "Inventory",
+        secondary='ticket_inventory',
+        back_populates='service_tickets'
+    )
 class ServiceAssignment(db.Model):
     __tablename__ = 'service_assignment'
     service_ticket_id = db.Column(
@@ -93,3 +97,26 @@ class ServiceAssignment(db.Model):
 
     ticket   = db.relationship('ServiceTicket', back_populates='assignments')
     mechanic = db.relationship('Mechanic',      back_populates='assignments')
+
+
+# Junction table (simple version)
+ticket_inventory = db.Table(
+    'ticket_inventory',
+    db.Column('ticket_id', db.Integer, db.ForeignKey('service_ticket.ticket_id'), primary_key=True),
+    db.Column('inventory_id', db.Integer, db.ForeignKey('inventory.id'), primary_key=True)
+)
+
+
+class Inventory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+
+    # Relationship to ServiceTickets
+    service_tickets = db.relationship(
+        'ServiceTicket',
+        secondary=ticket_inventory,
+        back_populates='parts'
+    )
+
+# Add this to ServiceTicket model:

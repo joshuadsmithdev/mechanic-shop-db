@@ -38,17 +38,20 @@ def get_mechanic(id):
     m = Mechanic.query.get_or_404(id)
     return mechanic_schema.jsonify(m)
 
-@mechanics_bp.route('/top', methods=['GET'])
-def get_top_mechanics():
+@mechanics_bp.route('/ranked', methods=['GET'])
+def get_ranked_mechanics():
     # Example logic: Top mechanics based on number of assignments
-    top_mechanics = db.session.query(
-        Mechanic,
-        db.func.count(ServiceAssignment.mechanic_id).label('assignment_count')
-    ).outerjoin(ServiceAssignment).group_by(Mechanic.id).order_by(db.desc('assignment_count')).limit(5).all()
+    ranked = (
+        db.session.query(Mechanic, db.func.count(ServiceAssignment.mechanic_id).label('assignment_count'))
+        .outerjoin(ServiceAssignment, Mechanic.mechanic_id == ServiceAssignment.mechanic_id)
+        .group_by(Mechanic.mechanic_id)
+        .order_by(db.desc('assignment_count'))
+        .all()
+    )
 
     result = [{
-        'mechanic': mechanic_schema.dump(m[0]),
-        'assignment_count': m[1]
-    } for m in top_mechanics]
+        "mechanic": mechanic_schema.dump(mech),
+        "assignment_count": count
+    } for mech, count in ranked]
 
     return jsonify(result), 200

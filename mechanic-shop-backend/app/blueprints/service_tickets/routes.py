@@ -108,3 +108,24 @@ def delete_ticket(ticket_id):
     db.session.delete(ticket)
     db.session.commit()
     return '', 204
+
+@tickets_bp.route('/<int:ticket_id>/add-part/<int:part_id>', methods=['POST'])
+def add_part_to_ticket(ticket_id, part_id):
+    ticket = ServiceTicket.query.get_or_404(ticket_id)
+    part = Inventory.query.get_or_404(part_id)
+
+    if part not in ticket.parts:
+        ticket.parts.append(part)
+        db.session.commit()
+
+    return jsonify({"message": "Part added to ticket."}), 200
+@tickets_bp.route('/<int:ticket_id>/remove-part/<int:part_id>', methods=['DELETE'])
+def remove_part_from_ticket(ticket_id, part_id):
+    ticket = ServiceTicket.query.get_or_404(ticket_id)
+    part = Inventory.query.get_or_404(part_id)
+
+    if part in ticket.parts:
+        ticket.parts.remove(part)
+        db.session.commit()
+
+    return jsonify({"message": "Part removed from ticket."}), 200

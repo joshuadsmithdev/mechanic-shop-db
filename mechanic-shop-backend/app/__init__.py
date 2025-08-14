@@ -19,10 +19,12 @@ def create_app():
     from .blueprints.vehicles.routes import vehicles_bp
     from .blueprints.customers.ticket_routes import customer_ticket_bp
     from app.blueprints.mechanics.mechanic_ticket_routes import mechanic_ticket_bp
+    from .blueprints.Inventory.routes import inventory_bp
 
 
 
     app.register_blueprint(customers_bp)
+    app.register_blueprint(inventory_bp, url_prefix='/inventory')
     app.register_blueprint(mechanic_ticket_bp, url_prefix='/mechanic')
     app.register_blueprint(customer_ticket_bp, url_prefix='/customer')
     app.register_blueprint(vehicles_bp,    url_prefix='/vehicles')
