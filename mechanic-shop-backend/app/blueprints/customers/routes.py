@@ -1,8 +1,7 @@
 from flask import Blueprint, request, jsonify
-from app.extensions import db
+from app.extensions import db, limiter
 from app.models import Customer
 from .schemas import CustomerSchema
-from app.extensions import limiter
 from app.utils.token import encode_token, token_required
 from .schemas import LoginSchema
 login_schema = LoginSchema()
@@ -15,17 +14,22 @@ customer_list_schema = CustomerSchema(many=True)
 # Create a new customer
 @customers_bp.route("/customers", methods=["POST"])
 @limiter.limit("10 per minute")  # Rate limit to prevent abuse
+
+def list_customers():
+    customers = Customer.query.all()
+    return customer_list_schema.jsonify(customers), 200
 def create_customer():
-    data = request.get_json()
+    data = request.get_json() or {}
+    c = Customer_Shcema.load(data, session=db.session)
     try:
         customer = customer_schema.load(data)
         customer.set_password(data.get('password'))  # Hash the password
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-    db.session.add(customer)
+    db.session.add(c)
     db.session.commit()
-    return customer_schema.jsonify(customer), 201
+    return customer_schema.jsonify(customer_schema.dump), 201
 
 # Login route to get token
 @customers_bp.route("/login", methods=["POST"])

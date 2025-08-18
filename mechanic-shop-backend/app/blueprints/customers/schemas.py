@@ -8,6 +8,7 @@ from app.extensions import ma
 from app.models import Customer
 
 class CustomerSchema(ma.SQLAlchemyAutoSchema):
+    id = fields.Int(attribute="customer_id", dump_only=True)  # map model's customer_id to id in API
      # explicitly include fields that are not picked up by default
     first_name = fields.Str(required=True)
     last_name = fields.Str(required=True)

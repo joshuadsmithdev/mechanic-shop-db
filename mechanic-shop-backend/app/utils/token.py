@@ -1,5 +1,5 @@
 from jose import jwt, JWTError
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from flask import current_app # Replace with a strong key, or use `app.config`
 ALGORITHM = "HS256"
 EXPIRE_MINUTES = 60  # Token expires in 1 hour
@@ -7,7 +7,7 @@ SECRET_KEY = "Takobre022293!"  # This should be set in your app config for secur
 def encode_token(customer_id):
     payload = {
         "sub": str(customer_id),
-        "exp": datetime.utcnow() + timedelta(minutes=EXPIRE_MINUTES)
+        "exp": datetime.now(UTC) + timedelta(minutes=EXPIRE_MINUTES)
     }
     print(f"Encoding token with key:{SECRET_KEY}, payload: {payload}")
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
