@@ -1,4 +1,3 @@
-# app/blueprints/auth/routes.py
 from flask import Blueprint, request, jsonify
 from marshmallow import Schema, fields
 from app.models import Customer
@@ -21,8 +20,7 @@ def login():
 
     user = Customer.query.filter_by(email=data["email"]).first()
     if not user or not user.check_password(data["password"]):
-        return jsonify({"error": "Invalid credentials"}), 401
+        return jsonify({"error": "Invalid email or password"}), 401
 
-    uid = getattr(user, "customer_id", None) or getattr(user, "id",)
-
-    return jsonify({"token": encode_token(user.customer_id if hasattr(user, "customer_id") else user.id)}), 200
+    uid = getattr(user, "customer_id", None) or getattr(user, "id")
+    return jsonify({"token": encode_token(uid)}), 200

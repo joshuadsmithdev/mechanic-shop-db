@@ -9,28 +9,36 @@ inventories_schema = InventorySchema(many=True)
 
 @inventory_bp.route('/', methods=['POST'])
 def create_inventory():
-    data = request.get_json()
-    part = inventory_schema.load(data, session=db.session)
-    db.session.add(part)
+    data = (request.get_json() or {}).copy()
+    if data.get("price") in (None, ''):
+        data["price"] = 0.0
+    item = inventory_schema.load(data, session=db.session, partial=True)
+    db.session.add(item)
     db.session.commit()
-    return inventory_schema.jsonify(part), 201
+    return inventory_schema.jsonify(item), 201
 
 @inventory_bp.route('/', methods=['GET'])
 def list_inventory():
-    parts = Inventory.query.all()
-    return inventories_schema.jsonify(parts), 200
+    items = Inventory.query.all()
+    return inventories_schema.jsonify(items), 200
 
 @inventory_bp.route('/<int:id>', methods=['GET'])
 def get_inventory(id):
-    part = Inventory.query.get_or_404(id)
-    return inventory_schema.jsonify(part)
+    item = Inventory.query.get_or_404(id)
+    return inventory_schema.jsonify(item)
 
 @inventory_bp.route('/<int:id>', methods=['PUT'])
 def update_inventory(id):
-    part = Inventory.query.get_or_404(id)
-    data = inventory_schema.load(request.get_json(), instance=part, session=db.session)
+    item = Inventory.query.get_or_404(id)
+    data = request.get_json() or {}
+    if "qty" in data:
+        if hasattr(item, "quantity"):
+            item.quantity = data["qty"]
+        elif hasattr(item, "qty"):
+            item.qty = data["qty"]
+    inventory_schema.load(data, instance=item, partial=True, session=db.session)
     db.session.commit()
-    return inventory_schema.jsonify(part)
+    return inventory_schema.jsonify(item)
 
 @inventory_bp.route('/<int:id>', methods=['DELETE'])
 def delete_inventory(id):

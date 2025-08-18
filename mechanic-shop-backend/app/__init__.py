@@ -38,10 +38,11 @@ def create_app(config_overrides=None):
     from .blueprints.customers.routes import customers_bp
     from .blueprints.Inventory.routes import inventory_bp
     from .blueprints.mechanics.routes import mechanics_bp
-    from .blueprints.service_tickets import tickets_bp
+    from .blueprints.service_tickets.routes import tickets_bp
     from .blueprints.vehicles.routes import vehicles_bp
     from .blueprints.customers.ticket_routes import customer_ticket_bp
     from .blueprints.mechanics.mechanic_ticket_routes import mechanic_ticket_bp
+    from .blueprints.auth.routes import auth_bp
 
     # Register with prefixes the tests expect
     app.register_blueprint(customers_bp,       url_prefix="/customers")
@@ -52,5 +53,6 @@ def create_app(config_overrides=None):
     app.register_blueprint(vehicles_bp,        url_prefix="/vehicles")
     app.register_blueprint(customer_ticket_bp, url_prefix="/customer")
     app.register_blueprint(mechanic_ticket_bp, url_prefix="/mechanic")
+    app.register_blueprint(auth_bp)
 
     return app

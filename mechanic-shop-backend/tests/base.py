@@ -5,7 +5,14 @@ from app.extensions import db
 
 class BaseTestCase(unittest.TestCase):
     def setUp(self):
-        self.app = create_app()
+        self.app = create_app({
+            "TESTING": True,
+            "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+            "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+            "WTF_CSRF_ENABLED": False,
+            "RATELIMIT_ENABLED": False,
+            "CACHE_TYPE": "SimpleCache",
+        })
         self.app.config.update({
             "TESTING": True,
             "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
