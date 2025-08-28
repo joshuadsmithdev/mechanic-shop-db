@@ -1,6 +1,7 @@
 # app/__init__.py
 from flask import Flask, jsonify
-from .config import Config, os
+import os
+from .config import Config
 from .extensions import db, migrate, ma
 from flask_swagger_ui import get_swaggerui_blueprint
 
@@ -54,5 +55,7 @@ def create_app(config_overrides=None):
     app.register_blueprint(customer_ticket_bp, url_prefix="/customer")
     app.register_blueprint(mechanic_ticket_bp, url_prefix="/mechanic")
     app.register_blueprint(auth_bp)
+
+  
 
     return app
