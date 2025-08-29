@@ -1,5 +1,5 @@
 # app/__init__.py
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, Response
 import os
 from .config import Config
 from .extensions import db, migrate, ma
@@ -18,6 +18,7 @@ def create_app(config_overrides=None):
     db.init_app(app)
     migrate.init_app(app, db)
     ma.init_app(app)
+    from app import models
 
     # --- Swagger UI ---
     SWAGGER_URL = "/docs"
@@ -42,7 +43,7 @@ def create_app(config_overrides=None):
     from .blueprints.service_tickets.routes import tickets_bp
     from .blueprints.vehicles.routes import vehicles_bp
     from .blueprints.customers.ticket_routes import customer_ticket_bp
-    from .blueprints.mechanics.mechanic_ticket_routes import mechanic_ticket_bp
+    from .blueprints.mechanics.mechanic_ticket_routes import mechanic_ticket_bp, get_my_assigned_tickets
     from .blueprints.auth.routes import auth_bp
 
     # Register with prefixes the tests expect
@@ -53,9 +54,26 @@ def create_app(config_overrides=None):
     # the following aren’t used by tests but keep them available
     app.register_blueprint(vehicles_bp,        url_prefix="/vehicles")
     app.register_blueprint(customer_ticket_bp, url_prefix="/customer")
-    app.register_blueprint(mechanic_ticket_bp, url_prefix="/mechanic")
+    app.register_blueprint(mechanic_ticket_bp)
     app.register_blueprint(auth_bp)
+    app.add_url_rule("/my-assigned-tickets", view_func=get_my_assigned_tickets, methods=["GET"])
 
-  
+
+
+    @app.errorhandler(404)
+    def handle_404(e):
+        html = (
+        "<!doctype html>"
+        "<html lang='en'>"
+        "<head><meta charset='utf-8'><title>Not Found</title></head>"
+        "<body><h1>Not Found</h1><p>The requested URL was not found on the server.</p></body>"
+        "</html>"
+        )
+        # EXACT content-type expected by tests (no charset)
+        return Response(html, status=404, headers={"Content-Type": "text/html"})
+
+    @app.errorhandler(405)
+    def handle_405(e):
+        return Response("Method Not Allowed", status=405, headers={"Content-Type": "text/html"})
 
     return app

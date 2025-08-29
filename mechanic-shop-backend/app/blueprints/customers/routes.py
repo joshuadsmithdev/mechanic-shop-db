@@ -10,14 +10,14 @@ customer_schema = CustomerSchema()
 customers_schema = CustomerSchema(many=True)
 
 # GET /customers/  -> tests expect a plain list
-@customers_bp.get("/")
+@customers_bp.get("", strict_slashes=False)
 @limiter.limit("100 per hour")
 def list_customers():
     customers = Customer.query.all()
     return jsonify(customers_schema.dump(customers)), 200
 
 # POST /customers/ -> create and return the created customer as JSON
-@customers_bp.post("/")
+@customers_bp.post("", strict_slashes=False)
 @limiter.limit("10 per minute")
 def create_customer():
     data = request.get_json() or {}
@@ -31,13 +31,13 @@ def create_customer():
     return jsonify(customer_schema.dump(customer)), 201
 
 # GET /customers/<id>
-@customers_bp.get("/<int:customer_id>")
+@customers_bp.get("<int:customer_id>")
 def get_customer(customer_id):
     customer = Customer.query.get_or_404(customer_id)
     return jsonify(customer_schema.dump(customer)), 200
 
 # PUT /customers/<id>  -> tests send invalid email to trigger 400/422
-@customers_bp.put("/<int:customer_id>")
+@customers_bp.put("<int:customer_id>")
 def update_customer(customer_id):
     customer = Customer.query.get_or_404(customer_id)
     data = request.get_json() or {}
@@ -50,7 +50,7 @@ def update_customer(customer_id):
     return jsonify(customer_schema.dump(updated)), 200
 
 # DELETE /customers/<id>
-@customers_bp.delete("/<int:customer_id>")
+@customers_bp.delete("<int:customer_id>")
 def delete_customer(customer_id):
     customer = Customer.query.get_or_404(customer_id)
     db.session.delete(customer)
