@@ -38,7 +38,7 @@ def create_app(config_overrides=None):
 
     # --- Blueprints ---
     from .blueprints.customers.routes import customers_bp
-    from .blueprints.Inventory.routes import inventory_bp
+    from .blueprints.inventory.routes import inventory_bp
     from .blueprints.mechanics.routes import mechanics_bp
     from .blueprints.service_tickets.routes import tickets_bp
     from .blueprints.vehicles.routes import vehicles_bp
@@ -54,9 +54,8 @@ def create_app(config_overrides=None):
     # the following aren’t used by tests but keep them available
     app.register_blueprint(vehicles_bp,        url_prefix="/vehicles")
     app.register_blueprint(customer_ticket_bp, url_prefix="/customer")
-    app.register_blueprint(mechanic_ticket_bp)
+    app.register_blueprint(mechanic_ticket_bp, url_prefix="/mechanic")
     app.register_blueprint(auth_bp)
-    app.add_url_rule("/my-assigned-tickets", view_func=get_my_assigned_tickets, methods=["GET"])
 
 
 
@@ -75,5 +74,44 @@ def create_app(config_overrides=None):
     @app.errorhandler(405)
     def handle_405(e):
         return Response("Method Not Allowed", status=405, headers={"Content-Type": "text/html"})
+
+        # --- Seed a default user in TESTING so /login works in tests ---
+    if app.config.get("TESTING"):
+        with app.app_context():
+            from app.models import Customer
+            db.create_all()
+
+            if not Customer.query.filter_by(email="sam@example.com").first():
+                u = Customer()  # don't pass unknown kwargs
+
+                # always set email
+                setattr(u, "email", "sam@example.com")
+
+                # set whichever name/phone/address fields your model actually has
+                for field, value in [
+                    ("name", "Sam Wrench"),
+                    ("first_name", "Sam"),
+                    ("last_name", "Wrench"),
+                    ("address", ""),
+                    ("phone", "555-1111"),
+                ]:
+                    if hasattr(u, field):
+                        setattr(u, field, value)
+
+                # set password
+                if hasattr(u, "set_password"):
+                    u.set_password("secret123")
+                elif hasattr(u, "password_hash"):
+                    from werkzeug.security import generate_password_hash
+                    u.password_hash = generate_password_hash("secret123")
+
+                db.session.add(u)
+                try:
+                    db.session.commit()
+                except Exception as e:
+                    db.session.rollback()
+                    # don't crash test environment; just log
+                    print(f"[TEST SEED] Could not commit seed user: {e}")
+
 
     return app
