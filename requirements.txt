@@ -6,3 +6,7 @@ gunicorn>=21.2
 python-dotenv>=1.0
 SQLAlchemy>=2.0
 psycopg2-binary>=2.9
+flask-marshmallow>=1.2
+marshmallow>=3.21
+marshmallow-sqlalchemy>=0.29
+flask-swagger-ui>=4.11.1
