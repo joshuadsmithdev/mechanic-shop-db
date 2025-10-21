@@ -1,24 +1,21 @@
+# mechanic_shop_backend/app/main.py
 from flask import Flask
-from ..config import Config
+from .config import Config
 from .extensions import db, migrate, limiter, cache
 from .demo import demo_bp
-from flask_limiter.util import get_remote_address
+from .blueprints.customers.routes import customers_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
-app.register_blueprint(demo_bp)  # Serves GET /demo
+# Blueprints
+app.register_blueprint(demo_bp)                              # GET /demo
+app.register_blueprint(customers_bp, url_prefix="/api/customers")
 
-
-# Initialize extensions
+# Extensions
 db.init_app(app)
 migrate.init_app(app, db)
-limiter.init_app(
-    app,
-    key_func=get_remote_address,
-    storage_uri="memory://",   # works on Render single instance
-    default_limits=[]          # no global default; you only limit routes you decorate
-)
+limiter.init_app(app)    # <-- no kwargs here
 cache.init_app(app)
 
 @app.route("/")
