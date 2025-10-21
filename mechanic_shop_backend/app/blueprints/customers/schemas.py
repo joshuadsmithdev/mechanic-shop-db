@@ -1,6 +1,6 @@
 from marshmallow import Schema, fields, EXCLUDE, pre_load
-from app.extensions import ma
-from app.models import Customer
+from ...extensions import ma
+from ...models import Customer
 
 class LoginSchema(Schema):
     email = fields.Email(required=True)
