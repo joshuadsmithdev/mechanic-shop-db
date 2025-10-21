@@ -17,7 +17,7 @@ db.init_app(app)
 migrate.init_app(app, db)
 limiter.init_app(app)    # <-- no kwargs here
 cache.init_app(app)
-
+from . import models
 @app.route("/")
 def home():
     return "🔧 Mechanic Shop API is alive!"
