@@ -1,0 +1,55 @@
+openapi: 3.0.3
+info:
+  title: Mechanic Shop API
+  version: 1.0.0
+servers:
+  - url: /
+paths:
+  /api/customers:
+    get:
+      summary: List customers
+      responses:
+        "200":
+          description: OK
+    post:
+      summary: Create customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                email: { type: string }
+      responses:
+        "201":
+          description: Created
+  /api/customers/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: integer }
+    get:
+      summary: Get by id
+      responses:
+        "200": { description: OK }
+        "404": { description: Not Found }
+    patch:
+      summary: Update
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                email: { type: string }
+      responses:
+        "200": { description: OK }
+    delete:
+      summary: Delete
+      responses:
+        "204": { description: No Content }
