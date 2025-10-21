@@ -1,7 +1,7 @@
 from flask import Flask
 from ..config import Config
 from .extensions import db, migrate, limiter, cache
-from app.demo import demo_bp
+from .demo import demo_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
