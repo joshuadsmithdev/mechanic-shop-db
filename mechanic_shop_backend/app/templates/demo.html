@@ -1,0 +1,81 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mechanic Shop — Customers Demo</title>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <link rel="stylesheet" href="/static/demo_customers.css" />
+</head>
+<body>
+  <header>
+    <h1>Customers Demo</h1>
+    <p>Interactive, no-login UI that calls your live <code>/api/customers</code> endpoints.</p>
+  </header>
+
+  <main class="grid">
+    <section class="card">
+      <h2>List Customers</h2>
+      <div class="row">
+        <button hx-get="/api/customers"
+                hx-target="#customersList"
+                hx-swap="innerHTML"
+                hx-trigger="click">
+          Load Customers
+        </button>
+      </div>
+      <pre id="customersList" class="output" aria-live="polite"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Create Customer</h2>
+      <form id="createForm" class="stack" onsubmit="return false">
+        <label>Name <input id="c_name" required /></label>
+        <label>Email <input id="c_email" type="email" required /></label>
+        <label>Password (optional) <input id="c_password" type="password" /></label>
+        <button onclick="createCustomer()">Create</button>
+      </form>
+      <pre id="createResult" class="output"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Get Customer by ID</h2>
+      <form class="row" onsubmit="return false">
+        <label>ID <input id="g_id" type="number" min="1" required /></label>
+        <button hx-get="/api/customers/"
+                hx-include="#g_id"
+                hx-target="#getResult"
+                hx-swap="innerHTML"
+                onclick="this.setAttribute('hx-get', '/api/customers/' + document.getElementById('g_id').value)">
+          Get
+        </button>
+      </form>
+      <pre id="getResult" class="output"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Update Customer (PATCH-like)</h2>
+      <p>Uses your <code>PUT /api/customers/&lt;id&gt;</code> which supports partial update via Marshmallow.</p>
+      <form class="stack" onsubmit="return false">
+        <label>ID <input id="u_id" type="number" min="1" required /></label>
+        <label>New Email <input id="u_email" type="email" /></label>
+        <label>New Name <input id="u_name" /></label>
+        <button onclick="updateCustomer()">Update</button>
+      </form>
+      <pre id="updateResult" class="output"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Delete Customer</h2>
+      <form class="row" onsubmit="return false">
+        <label>ID <input id="d_id" type="number" min="1" required /></label>
+        <button onclick="deleteCustomer()">Delete</button>
+      </form>
+      <pre id="deleteResult" class="output"></pre>
+    </section>
+  </main>
+
+  <script src="/static/demo_customers.js"></script>
+</body>
+</html>
