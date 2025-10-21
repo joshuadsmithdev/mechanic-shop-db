@@ -1,17 +1,20 @@
+# app/extensions.py
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate    import Migrate
+from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_caching import Cache
 
+# Configure limiter at construction time (no kwargs in init_app later)
 limiter = Limiter(
-  key_func=get_remote_address,
-  storage_uri="memory://",   # ✅ in-memory store (perfect for Render)
-    default_limits=[]          # ✅ optional; disables global default rate limits
+    key_func=get_remote_address,
+    storage_uri="memory://",   # works on Render single instance
+    default_limits=[]          # optional: disable global defaults
 )
+
 cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
 
-db     = SQLAlchemy()
+db = SQLAlchemy()
 migrate = Migrate()
-ma     = Marshmallow()
+ma = Marshmallow()
