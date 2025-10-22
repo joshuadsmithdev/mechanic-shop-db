@@ -47,14 +47,14 @@ def create_app(config_overrides=None):
     from .blueprints.auth.routes import auth_bp
 
     # Register with prefixes the tests expect
-    app.register_blueprint(customers_bp,       url_prefix="/customers")
-    app.register_blueprint(inventory_bp,       url_prefix="/inventory")
-    app.register_blueprint(mechanics_bp,       url_prefix="/mechanics")
-    app.register_blueprint(tickets_bp,         url_prefix="/service_tickets")  # ← fix
+    app.register_blueprint(customers_bp,       url_prefix="/api/customers")
+    app.register_blueprint(inventory_bp,       url_prefix="/api/inventory")
+    app.register_blueprint(mechanics_bp,       url_prefix="/api/mechanics")
+    app.register_blueprint(tickets_bp,         url_prefix="/api/service_tickets")  # ← fix
     # the following aren’t used by tests but keep them available
-    app.register_blueprint(vehicles_bp,        url_prefix="/vehicles")
-    app.register_blueprint(customer_ticket_bp, url_prefix="/customer")
-    app.register_blueprint(mechanic_ticket_bp, url_prefix="/mechanic")
+    app.register_blueprint(vehicles_bp,        url_prefix="/api/vehicles")
+    app.register_blueprint(customer_ticket_bp, url_prefix="/api/customer")
+    app.register_blueprint(mechanic_ticket_bp, url_prefix="/api/mechanic")
     app.register_blueprint(auth_bp)
 
 
