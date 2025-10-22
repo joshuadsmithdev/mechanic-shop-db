@@ -1,8 +1,8 @@
 # app/blueprints/auth/routes.py
 from flask import Blueprint, request, jsonify
 from marshmallow import Schema, fields
-from app.models import Customer
-from app.utils.token import encode_token
+from ...models import Customer
+from ...utils.token import encode_token
 
 auth_bp = Blueprint("auth", __name__)
 

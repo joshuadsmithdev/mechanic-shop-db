@@ -1,8 +1,8 @@
 # app/blueprints/inventory/schemas.py
 from marshmallow import fields, EXCLUDE
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
-from app.extensions import ma
-from app.models import Inventory  # adjust import path/name if needed
+from ...extensions import ma
+from ...models import Inventory  # adjust import path/name if needed
 
 class InventorySchema(ma.SQLAlchemyAutoSchema):
     # Expose `id` in API even if model uses `item_id`

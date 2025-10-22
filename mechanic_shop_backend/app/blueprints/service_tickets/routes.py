@@ -3,7 +3,7 @@ from flask import Blueprint, request, jsonify
 from ...extensions import db
 from ...models import ServiceTicket, Vehicle, Mechanic, ServiceAssignment
 from .schemas import ServiceTicketSchema
-from app.utils.token import token_required
+from ...utils.token import token_required
 
 tickets_bp = Blueprint("tickets", __name__)
 ticket_schema = ServiceTicketSchema()
@@ -279,4 +279,3 @@ def remove_mechanic_assignment(ticket_id: int, mechanic_id: int, current_role=No
     else:
         # idempotent: OK even if nothing to delete
         return jsonify({"message": "No assignment to remove"}), 200
-

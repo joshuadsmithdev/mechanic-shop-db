@@ -1,5 +1,5 @@
-from app.extensions import ma
-from app.models import Vehicle
+from ...extensions import ma
+from ...models import Vehicle
 
 class VehicleSchema(ma.SQLAlchemyAutoSchema):
     class Meta:

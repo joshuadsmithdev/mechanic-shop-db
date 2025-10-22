@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from app.extensions import db
-from app.models import Vehicle, Customer
+from ...extensions import db
+from ...models import Vehicle, Customer
 from .schemas import VehicleSchema
 
 vehicles_bp = Blueprint("vehicles", __name__)

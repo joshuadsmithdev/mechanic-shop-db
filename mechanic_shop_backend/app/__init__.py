@@ -20,7 +20,7 @@ def create_app(config_overrides=None):
     ma.init_app(app)
 
     # import models so tables are registered
-    from app import models  # noqa
+    from . import models  # noqa
 
     # Swagger UI
     SWAGGER_URL = "/docs"
@@ -28,7 +28,7 @@ def create_app(config_overrides=None):
     swaggerui_bp = get_swaggerui_blueprint(SWAGGER_URL, API_URL, config={"app_name": "Mechanic Shop API"})
     app.register_blueprint(swaggerui_bp, url_prefix=SWAGGER_URL)
 
-    from app.swagger import swagger_spec
+    from .swagger import swagger_spec
     @app.route("/swagger.json")
     def swagger_json():
         return jsonify(swagger_spec)
