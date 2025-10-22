@@ -3,7 +3,7 @@ from app.extensions import db
 from app.models import Vehicle, Customer
 from .schemas import VehicleSchema
 
-vehicles_bp = Blueprint("vehicles", __name__)
+vehicles_bp = Blueprint("vehicles", __name__, url_prefix="/api")
 
 vehicle_schema = VehicleSchema()
 vehicle_list_schema = VehicleSchema(many=True)
