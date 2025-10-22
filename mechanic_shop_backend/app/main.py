@@ -2,61 +2,60 @@
 from flask import Flask, jsonify
 from .config import Config
 from .extensions import db, migrate, limiter, cache
-from .demo import demo_bp
-from .blueprints.customers.routes import customers_bp
-# from flask_cors import CORS  # optional if calling from another origin
-import os
-
-app = Flask(__name__)
-app.config.from_object(Config)
 
 # Blueprints
-app.register_blueprint(demo_bp)                              # /demo
-app.register_blueprint(customers_bp, url_prefix="/api/customers")
+from .demo import demo_bp
+from .blueprints.customers.routes import customers_bp
+# (add others later as needed)
 
-# Extensions
-db.init_app(app)
-migrate.init_app(app, db)
-limiter.init_app(app)
-cache.init_app(app)
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
 
-# ⬅️ CRITICAL: import models BEFORE create_all / migrations
-from . import models  # noqa: F401
+    # --- Init extensions ---
+    db.init_app(app)
+    migrate.init_app(app, db)
+    limiter.init_app(app)   # works with Flask-Limiter 3.x/4.x without kwargs
+    cache.init_app(app)
 
-# Safety net: create any missing tables (e.g., if migrations didn’t run)
-with app.app_context():
-    try:
-        db.create_all()
-        # log what tables we see now
-        insp = db.inspect(db.engine)
-        app.logger.info("Startup tables: %s", sorted(insp.get_table_names()))
-    except Exception as e:
-        app.logger.exception("db.create_all() failed: %s", e)
+    # --- Register blueprints ---
+    app.register_blueprint(demo_bp)  # serves /demo
+    app.register_blueprint(customers_bp, url_prefix="/api/customers")
 
-# CORS if your UI is elsewhere
-# CORS(app, resources={r"/api/*": {"origins": "*"}})
+    # --- Ensure tables exist at startup (Postgres-safe) ---
+    # Important: import models BEFORE create_all so metadata is populated.
+    with app.app_context():
+        from . import models  # noqa: F401 - populates db.metadata
+        try:
+            db.create_all()  # creates missing tables (no-op if they already exist)
+            app.logger.info("DB create_all() completed.")
+        except Exception:
+            app.logger.exception("DB create_all() failed")
 
-@app.get("/diag")
-def diag():
-    try:
-        uri = app.config.get("SQLALCHEMY_DATABASE_URI", "<missing>")
-        insp = db.inspect(db.engine)
-        return jsonify({
-            "db_uri_sample": uri[:60] + ("..." if len(uri) > 60 else ""),
-            "tables": sorted(insp.get_table_names())
-        }), 200
-    except Exception as e:
-        app.logger.exception("diag failed")
-        return jsonify({"error": str(e)}), 500
+    # --- Simple health/diag routes ---
+    @app.get("/")
+    def home():
+        return "🔧 Mechanic Shop API is alive!"
 
-@app.route("/")
-def home():
-    return "🔧 Mechanic Shop API is alive!"
+    @app.get("/diag")
+    def diag():
+        # Show DB URI start (not full) and current tables visible to SQLAlchemy
+        try:
+            uri = app.config.get("SQLALCHEMY_DATABASE_URI", "")
+            sample = f"{uri[:60]}..." if uri else "unset"
+            # Reflect to see server-side tables
+            from sqlalchemy import inspect
+            insp = inspect(db.engine)
+            tables = insp.get_table_names()
+            return jsonify({"db_uri_sample": sample, "tables": tables}), 200
+        except Exception as e:
+            app.logger.exception("diag failed")
+            return jsonify({"error": str(e)}), 500
 
-@app.errorhandler(Exception)
-def handle_exception(e):
-    app.logger.exception("Unhandled exception: %s", e)
-    return jsonify({"error": "Internal Server Error"}), 500
+    return app
+
+# Gunicorn entrypoint expects a module-level `app`
+app = create_app()
 
 if __name__ == "__main__":
     app.run(debug=True)
