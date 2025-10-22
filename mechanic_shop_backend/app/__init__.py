@@ -51,6 +51,15 @@ def create_app(config_overrides=None):
     app.register_blueprint(customer_ticket_bp, url_prefix="/api/customer")
     app.register_blueprint(mechanic_ticket_bp, url_prefix="/api/mechanic")
     app.register_blueprint(auth_bp)
+    @app.route("/diag/routes")
+    def diag_routes():
+        out = []
+        for r in app.url_map.iter_rules():
+            out.append({
+                "rule": r.rule,
+                "methods": sorted(m for m in r.methods if m in {"GET","POST","PUT","DELETE","PATCH"})
+            })
+        return jsonify(sorted(out, key=lambda x: x["rule"]))
 
     @app.errorhandler(404)
     def handle_404(e):
