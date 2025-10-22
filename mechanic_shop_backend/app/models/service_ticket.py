@@ -15,7 +15,7 @@ class ServiceTicket(db.Model):
     date_out    = db.Column(db.DateTime)
     description = db.Column(db.Text)
     status      = db.Column(
-        db.Enum("open", "in_progress", "closed"),
+        db.Enum("open", "in_progress", "closed", name="ticket_status_enum"),
         default="open",
         nullable=False,
     )
