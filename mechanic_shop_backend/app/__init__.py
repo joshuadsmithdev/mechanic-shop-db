@@ -1,7 +1,7 @@
 # app/__init__.py
 from flask import Flask, jsonify, Response
 import os
-from .config import Config
+from ..config import Config
 from .extensions import db, migrate, ma
 from flask_swagger_ui import get_swaggerui_blueprint
 

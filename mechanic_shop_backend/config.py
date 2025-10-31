@@ -20,5 +20,11 @@ class Config:
         # Render sometimes gives old-style URLs, fix them for SQLAlchemy
         database_url = database_url.replace("postgres://", "postgresql://", 1)
 
-    SQLALCHEMY_DATABASE_URI = database_url or "sqlite:///default.db"
+    # --- Minimal fix: use ABSOLUTE path for local SQLite in ./instance/dev.db ---
+    _here = os.path.dirname(__file__)                         # .../mechanic_shop_backend
+    _project_root = os.path.abspath(os.path.join(_here, ".."))  # repo root
+    _instance_dir = os.path.join(_project_root, "instance")
+    os.makedirs(_instance_dir, exist_ok=True)                   # ensure folder exists
+    _db_path = os.path.join(_instance_dir, "dev.db")
 
+    SQLALCHEMY_DATABASE_URI = database_url or f"sqlite:///{_db_path}"
