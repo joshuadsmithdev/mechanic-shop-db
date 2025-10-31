@@ -1,9 +1,11 @@
 # app/__init__.py
 from flask import Flask, jsonify, Response
-import os
+import os, sys
 from ..config import Config
 from .extensions import db, migrate, ma
 from flask_swagger_ui import get_swaggerui_blueprint
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 def create_app(config_overrides=None):
     app = Flask(__name__)
